@@ -1,0 +1,11 @@
+.DS_Store
+
+# Logs
+*.log
+
+# Dependency directories
+node_modules/
+
+# Build outputs
+dist/
+build/
