@@ -1766,10 +1766,21 @@
         function (gltf) {
           const model = gltf.scene;
 
-          // 1. Keep your working scale and position
-          model.scale.set(100, 100, 100);
-          //model.position.set(0, -0.8, 0); 
-          model.position.set(0, 0, 0);
+          // Fit the model to the frame so it stays visible across asset changes.
+          const bounds = new THREE.Box3().setFromObject(model);
+          const size = new THREE.Vector3();
+          const center = new THREE.Vector3();
+          bounds.getSize(size);
+          bounds.getCenter(center);
+
+          const fitHeight = 3.1;
+          const scale = fitHeight / size.y;
+          model.scale.setScalar(scale);
+          model.position.set(
+            -center.x * scale + 0.35,
+            -center.y * scale + 0.85,
+            -center.z * scale
+          );
 
           character.add(model);
 
@@ -1851,6 +1862,12 @@
                   child.material.roughness = 0.55;
                   child.material.metalness = 0.05;
                 }
+
+                // Add a small emissive lift so the avatar does not disappear into the black hero.
+                if (child.material.emissive) {
+                  child.material.emissive.copy(child.material.color);
+                  child.material.emissiveIntensity = 0.12;
+                }
               }
             }
           });
@@ -1929,6 +1946,10 @@
       rimLight2.position.set(3, 1, -2);
       scene.add(rimLight2);
 
+      const fillGlow = new THREE.PointLight(0xff6a33, 1.2, 8);
+      fillGlow.position.set(0.8, 1.4, 3.5);
+      scene.add(fillGlow);
+
       const fillLight = new THREE.DirectionalLight(0x3a4a8a, 2.5);
       fillLight.position.set(0, 3, 4);
       scene.add(fillLight);
@@ -1966,8 +1987,8 @@
       // ==== MOUSE ====
       let tMouseX = 0, tMouseY = 0, mouseX = 0, mouseY = 0;
       document.addEventListener('mousemove', e => {
-        tMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-        tMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        tMouseX = (e.clientX / window.innerWidth - 0.5) * 4;
+        tMouseY = (e.clientY / window.innerHeight - 0.5) * 4;
       });
 
       // ==== ANIMATION ====
